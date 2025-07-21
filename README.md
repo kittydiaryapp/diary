@@ -1,3 +1,4 @@
+
 # Kitty Diary Legal Website
 
 This repository contains the legal documentation and information pages for the Kitty Diary application. The website includes:
