@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join KittyDiary Group</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #6C5CE7, #A29BFE);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: #6C5CE7;
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+        }
+        
+        h1 {
+            color: #2D3436;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        
+        .invite-info {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .group-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2D3436;
+            margin-bottom: 5px;
+        }
+        
+        .inviter {
+            color: #636E72;
+            font-size: 14px;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            background: #6C5CE7;
+            color: white;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 10px;
+            transition: background 0.2s;
+        }
+        
+        .download-btn:hover {
+            background: #5A4FCF;
+        }
+        
+        .app-installed {
+            color: #219150;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        
+        .description {
+            color: #636E72;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            color: #636E72;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🐱</div>
+        <h1>You're Invited to KittyDiary!</h1>
+        
+        <div class="invite-info">
+            <div class="group-name" id="groupName">Loading...</div>
+            <div class="inviter" id="inviterInfo">Loading...</div>
+        </div>
+        
+        <div class="description">
+            Join your friends in sharing pet photos, organizing meetups, and creating memorable moments together.
+        </div>
+        
+        <div id="app-not-installed">
+            <p>Download KittyDiary to join the group:</p>
+            <a href="#" id="android-link" class="download-btn">Download for Android</a>
+            <a href="#" id="ios-link" class="download-btn">Download for iOS</a>
+        </div>
+        
+        <div id="app-installed" class="app-installed" style="display: none;">
+            Opening KittyDiary... If the app doesn't open automatically, tap here to open it.
+        </div>
+        
+        <div class="footer">
+            Powered by Seawall Software
+        </div>
+    </div>
+
+    <script>
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const groupName = urlParams.get('groupName') || 'a group';
+        const inviterName = urlParams.get('inviterName') || 'Someone';
+        const groupId = urlParams.get('groupId');
+        
+        // Update page content
+        document.getElementById('groupName').textContent = decodeURIComponent(groupName);
+        document.getElementById('inviterInfo').textContent = `Invited by ${decodeURIComponent(inviterName)}`;
+        
+        // Set up download links
+        const androidLink = document.getElementById('android-link');
+        const iosLink = document.getElementById('ios-link');
+        
+        // Replace with your actual app store URLs
+        androidLink.href = 'https://play.google.com/store/apps/details?id=com.kittydiary.app';
+        iosLink.href = 'https://apps.apple.com/app/kittydiary/id123456789'; // Replace with actual App Store ID
+        
+        // Detect mobile platform and show appropriate download button
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        
+        if (isAndroid) {
+            iosLink.style.display = 'none';
+        } else if (isIOS) {
+            androidLink.style.display = 'none';
+        }
+        
+        // Try to open the app if it's installed
+        function tryOpenApp() {
+            if (groupId) {
+                const appUrl = `kittydiary://invite?${urlParams.toString()}`;
+                
+                // Try to open the app
+                window.location.href = appUrl;
+                
+                // If the app opens, hide the download section after a delay
+                setTimeout(() => {
+                    document.getElementById('app-not-installed').style.display = 'none';
+                    document.getElementById('app-installed').style.display = 'block';
+                }, 2000);
+            }
+        }
+        
+        // Try to open app on page load
+        if (document.readyState === 'complete') {
+            tryOpenApp();
+        } else {
+            window.addEventListener('load', tryOpenApp);
+        }
+        
+        // Add click handler for the "app installed" message
+        document.getElementById('app-installed').addEventListener('click', tryOpenApp);
+    </script>
+</body>
+</html>
