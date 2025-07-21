@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "29G924VP8S.com.kittydiary.app",
+        "paths": [
+          "/diary/*"
+        ]
+      }
+    ]
+  }
+}
