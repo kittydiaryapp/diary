@@ -253,19 +253,53 @@
             androidLink.parentElement.style.display = 'none';
         }
         
-        // Try to open the app if it's installed
+        // Try to open the app if it's installed using Smart App Banner approach
         function tryOpenApp() {
             if (groupId) {
                 const appUrl = `kittydiary://invite?${urlParams.toString()}`;
                 
+                // Use a more reliable method to detect app installation
+                let appOpened = false;
+                let blurTime = 0;
+                
+                // Track when page loses focus (likely means app opened)
+                const handleBlur = () => {
+                    blurTime = Date.now();
+                };
+                
+                const handleFocus = () => {
+                    if (blurTime && Date.now() - blurTime > 1000) {
+                        // User was away for more than 1 second, app likely opened
+                        appOpened = true;
+                        document.getElementById('app-not-installed').style.display = 'none';
+                        document.getElementById('app-installed').style.display = 'block';
+                    }
+                };
+                
+                window.addEventListener('blur', handleBlur);
+                window.addEventListener('focus', handleFocus);
+                
                 // Try to open the app
+                const startTime = Date.now();
                 window.location.href = appUrl;
                 
-                // If the app opens, hide the download section after a delay
+                // After 2.5 seconds, if still on page, assume app not installed
                 setTimeout(() => {
-                    document.getElementById('app-not-installed').style.display = 'none';
-                    document.getElementById('app-installed').style.display = 'block';
-                }, 2000);
+                    window.removeEventListener('blur', handleBlur);
+                    window.removeEventListener('focus', handleFocus);
+                    
+                    if (!appOpened) {
+                        // App not installed - redirect to app store
+                        console.log('App not detected, redirecting to store');
+                        if (isIOS) {
+                            window.location.href = 'https://apps.apple.com/ca/app/kitty-diary/id6747345472';
+                        } else if (isAndroid) {
+                            window.location.href = 'https://play.google.com/store/apps/details?id=com.kittydiary.app';
+                        } else {
+                            window.location.href = 'https://apps.apple.com/ca/app/kitty-diary/id6747345472';
+                        }
+                    }
+                }, 2500);
             }
         }
         
