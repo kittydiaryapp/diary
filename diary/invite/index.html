@@ -276,8 +276,17 @@
             window.addEventListener('load', tryOpenApp);
         }
         
-        // Add click handler for the "app installed" message
-        document.getElementById('app-installed').addEventListener('click', tryOpenApp);
+        // Add click handler for the "app installed" message to redirect to app store
+        document.getElementById('app-installed').addEventListener('click', function() {
+            if (isIOS) {
+                window.location.href = 'https://apps.apple.com/ca/app/kitty-diary/id6747345472';
+            } else if (isAndroid) {
+                window.location.href = 'https://play.google.com/store/apps/details?id=com.kittydiary.app';
+            } else {
+                // Default to iOS store for other platforms
+                window.location.href = 'https://apps.apple.com/ca/app/kitty-diary/id6747345472';
+            }
+        });
     </script>
 </body>
 </html>
