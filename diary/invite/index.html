@@ -199,13 +199,33 @@
             Join your private social circle to share moments, organize events, and stay connected with your closest friends and family.
         </div>
         
-        <div id="app-not-installed">
-            <p style="color: #2c3e50; font-size: 18px; font-weight: 600; margin-bottom: 10px;">Already have KittyDiary installed?</p>
-            <button onclick="tryOpenApp()" style="background: #219150; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: 600; margin-bottom: 20px; cursor: pointer;">
-                Open KittyDiary App
+        <div id="main-options">
+            <div style="margin-bottom: 30px;">
+                <p style="color: #2c3e50; font-size: 18px; font-weight: 600; margin-bottom: 15px;">Choose an option:</p>
+                
+                <!-- Option 1: Open App -->
+                <button onclick="tryOpenApp()" style="background: #219150; color: white; border: none; padding: 15px 25px; border-radius: 8px; font-size: 16px; font-weight: 600; width: 100%; margin-bottom: 15px; cursor: pointer; transition: background 0.3s;">
+                    📱 I Have KittyDiary - Open App
+                </button>
+                
+                <!-- Option 2: Download App -->
+                <button onclick="downloadApp()" style="background: #3498db; color: white; border: none; padding: 15px 25px; border-radius: 8px; font-size: 16px; font-weight: 600; width: 100%; cursor: pointer; transition: background 0.3s;">
+                    ⬇️ Download KittyDiary App
+                </button>
+            </div>
+        </div>
+        
+        <div id="app-opening" style="display: none;">
+            <div class="app-installed" style="margin-bottom: 15px;">
+                ✅ Opening KittyDiary... If the app doesn't open, tap the download button below.
+            </div>
+            <button onclick="downloadApp()" style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; cursor: pointer;">
+                Download App Instead
             </button>
-            
-            <p style="color: #2c3e50; font-size: 18px; font-weight: 600; margin-bottom: 10px;">Don't have the app? Download it:</p>
+        </div>
+        
+        <div id="download-options" style="display: none;">
+            <p style="color: #2c3e50; font-size: 18px; font-weight: 600; margin-bottom: 15px;">Download KittyDiary:</p>
             <div class="download-badges">
                 <a href="#" id="ios-link" target="_blank" rel="noopener">
                     <img class="app-store-badge"
@@ -218,10 +238,9 @@
                         alt="Get it on Google Play">
                 </a>
             </div>
-        </div>
-        
-        <div id="app-installed" class="app-installed" style="display: none;">
-            Opening KittyDiary... If the app doesn't open automatically, tap here to open it.
+            <button onclick="showMainOptions()" style="background: #95a5a6; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; margin-top: 15px; cursor: pointer;">
+                ← Back to Options
+            </button>
         </div>
         
         <div class="footer">
@@ -296,24 +315,83 @@
             }
         }
         
-        // Don't try to open app on page load - let user decide
-        // if (document.readyState === 'complete') {
-        //     tryOpenApp();
-        // } else {
-        //     window.addEventListener('load', tryOpenApp);
-        // }
-        
-        // Add click handler for the "app installed" message to redirect to app store
-        document.getElementById('app-installed').addEventListener('click', function() {
-            if (isIOS) {
-                window.location.href = 'https://apps.apple.com/ca/app/kitty-diary/id6747345472';
-            } else if (isAndroid) {
-                window.location.href = 'https://play.google.com/store/apps/details?id=com.kittydiary.app';
-            } else {
-                // Default to iOS store for other platforms
-                window.location.href = 'https://apps.apple.com/ca/app/kitty-diary/id6747345472';
+        // Store invite data in localStorage for later retrieval by the app
+        function storeInviteData() {
+            const inviteData = {
+                groupId: groupId,
+                invitedBy: urlParams.get('invitedBy'),
+                inviterName: urlParams.get('inviterName'),
+                groupName: urlParams.get('groupName'),
+                role: urlParams.get('role') || 'member',
+                type: urlParams.get('type'),
+                expiresAt: urlParams.get('expiresAt'),
+                timestamp: Date.now(),
+                originalUrl: window.location.href
+            };
+            
+            try {
+                localStorage.setItem('kittyDiaryPendingInvite', JSON.stringify(inviteData));
+                console.log('Stored pending invite data:', inviteData);
+            } catch (error) {
+                console.error('Failed to store invite data:', error);
             }
-        });
+        }
+        
+        // Show main options
+        function showMainOptions() {
+            document.getElementById('main-options').style.display = 'block';
+            document.getElementById('app-opening').style.display = 'none';
+            document.getElementById('download-options').style.display = 'none';
+        }
+        
+        // Handle download app option
+        function downloadApp() {
+            // Store invite data before redirecting to app store
+            storeInviteData();
+            
+            // Show download options
+            document.getElementById('main-options').style.display = 'none';
+            document.getElementById('app-opening').style.display = 'none';
+            document.getElementById('download-options').style.display = 'block';
+        }
+        
+        // Updated tryOpenApp function - only called when user explicitly chooses to open app
+        function tryOpenApp() {
+            if (!groupId) {
+                alert('Invalid invite link');
+                return;
+            }
+            
+            // Show opening state
+            document.getElementById('main-options').style.display = 'none';
+            document.getElementById('download-options').style.display = 'none';
+            document.getElementById('app-opening').style.display = 'block';
+            
+            const appUrl = `kittydiary://invite?${urlParams.toString()}`;
+            
+            // Handle Samsung Browser (known issues with deep links)
+            if (isSamsungBrowser) {
+                console.log('Samsung Browser detected, redirecting to Play Store');
+                downloadApp();
+                return;
+            }
+            
+            // Android Chrome-specific handling with intent syntax
+            if (isChromeAndroid) {
+                const intentUrl = `intent://invite?${urlParams.toString()}#Intent;scheme=kittydiary;package=com.kittydiary.app;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.kittydiary.app;end`;
+                window.location.href = intentUrl;
+                return;
+            }
+            
+            // Standard handling for iOS and other browsers
+            window.location.href = appUrl;
+        }
+        
+        // Don't auto-attempt deep link - let user choose
+        // Just store the invite data in case they download later
+        if (groupId) {
+            storeInviteData();
+        }
     </script>
 </body>
 </html>
