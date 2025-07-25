@@ -200,7 +200,12 @@
         </div>
         
         <div id="app-not-installed">
-            <p style="color: #2c3e50; font-size: 18px; font-weight: 600; margin-bottom: 10px;">Download KittyDiary to join the group:</p>
+            <p style="color: #2c3e50; font-size: 18px; font-weight: 600; margin-bottom: 10px;">Already have KittyDiary installed?</p>
+            <button onclick="tryOpenApp()" style="background: #219150; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: 600; margin-bottom: 20px; cursor: pointer;">
+                Open KittyDiary App
+            </button>
+            
+            <p style="color: #2c3e50; font-size: 18px; font-weight: 600; margin-bottom: 10px;">Don't have the app? Download it:</p>
             <div class="download-badges">
                 <a href="#" id="ios-link" target="_blank" rel="noopener">
                     <img class="app-store-badge"
@@ -253,62 +258,28 @@
             androidLink.parentElement.style.display = 'none';
         }
         
-        // Try to open the app if it's installed using Smart App Banner approach
+        // Try to open the app if it's installed
         function tryOpenApp() {
             if (groupId) {
                 const appUrl = `kittydiary://invite?${urlParams.toString()}`;
                 
-                // Use a more reliable method to detect app installation
-                let appOpened = false;
-                let blurTime = 0;
-                
-                // Track when page loses focus (likely means app opened)
-                const handleBlur = () => {
-                    blurTime = Date.now();
-                };
-                
-                const handleFocus = () => {
-                    if (blurTime && Date.now() - blurTime > 1000) {
-                        // User was away for more than 1 second, app likely opened
-                        appOpened = true;
-                        document.getElementById('app-not-installed').style.display = 'none';
-                        document.getElementById('app-installed').style.display = 'block';
-                    }
-                };
-                
-                window.addEventListener('blur', handleBlur);
-                window.addEventListener('focus', handleFocus);
-                
                 // Try to open the app
-                const startTime = Date.now();
                 window.location.href = appUrl;
                 
-                // After 2.5 seconds, if still on page, assume app not installed
+                // If the app opens, hide the download section after a delay
                 setTimeout(() => {
-                    window.removeEventListener('blur', handleBlur);
-                    window.removeEventListener('focus', handleFocus);
-                    
-                    if (!appOpened) {
-                        // App not installed - redirect to app store
-                        console.log('App not detected, redirecting to store');
-                        if (isIOS) {
-                            window.location.href = 'https://apps.apple.com/ca/app/kitty-diary/id6747345472';
-                        } else if (isAndroid) {
-                            window.location.href = 'https://play.google.com/store/apps/details?id=com.kittydiary.app';
-                        } else {
-                            window.location.href = 'https://apps.apple.com/ca/app/kitty-diary/id6747345472';
-                        }
-                    }
-                }, 2500);
+                    document.getElementById('app-not-installed').style.display = 'none';
+                    document.getElementById('app-installed').style.display = 'block';
+                }, 2000);
             }
         }
         
-        // Try to open app on page load
-        if (document.readyState === 'complete') {
-            tryOpenApp();
-        } else {
-            window.addEventListener('load', tryOpenApp);
-        }
+        // Don't try to open app on page load - let user decide
+        // if (document.readyState === 'complete') {
+        //     tryOpenApp();
+        // } else {
+        //     window.addEventListener('load', tryOpenApp);
+        // }
         
         // Add click handler for the "app installed" message to redirect to app store
         document.getElementById('app-installed').addEventListener('click', function() {
