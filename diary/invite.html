@@ -328,15 +328,22 @@
             document.getElementById('download-options').style.display = 'none';
         }
         
-        // Handle download app option
+        // Handle download app option - redirect directly to appropriate store
         function downloadApp() {
             // Store invite data before redirecting to app store
             storeInviteData();
             
-            // Show download options
-            document.getElementById('main-options').style.display = 'none';
-            document.getElementById('app-opening').style.display = 'none';
-            document.getElementById('download-options').style.display = 'block';
+            // Redirect directly to the appropriate app store
+            if (isIOS) {
+                window.location.href = 'https://apps.apple.com/ca/app/kitty-diary/id6747345472';
+            } else if (isAndroid) {
+                window.location.href = 'https://play.google.com/store/apps/details?id=com.kittydiary.app';
+            } else {
+                // Default to iOS store for other platforms, but also show options
+                document.getElementById('main-options').style.display = 'none';
+                document.getElementById('app-opening').style.display = 'none';
+                document.getElementById('download-options').style.display = 'block';
+            }
         }
         
         // Updated tryOpenApp function - only called when user explicitly chooses to open app
