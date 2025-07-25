@@ -248,9 +248,11 @@
         androidLink.href = 'https://play.google.com/store/apps/details?id=com.kittydiary.app';
         iosLink.href = 'https://apps.apple.com/ca/app/kitty-diary/id6747345472';
         
-        // Detect mobile platform and show appropriate download button
+        // Enhanced platform detection for better deep link handling
         const isAndroid = /Android/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isChromeAndroid = isAndroid && /Chrome/.test(navigator.userAgent);
+        const isSamsungBrowser = /SamsungBrowser/.test(navigator.userAgent);
         
         if (isAndroid) {
             iosLink.parentElement.style.display = 'none';
@@ -258,15 +260,35 @@
             androidLink.parentElement.style.display = 'none';
         }
         
-        // Try to open the app if it's installed
+        // Try to open the app with platform-specific handling
         function tryOpenApp() {
             if (groupId) {
                 const appUrl = `kittydiary://invite?${urlParams.toString()}`;
                 
-                // Try to open the app
+                // Handle Samsung Browser (known issues with deep links)
+                if (isSamsungBrowser) {
+                    console.log('Samsung Browser detected, redirecting to Play Store');
+                    window.location.href = 'https://play.google.com/store/apps/details?id=com.kittydiary.app';
+                    return;
+                }
+                
+                // Android Chrome-specific handling with intent syntax
+                if (isChromeAndroid) {
+                    const intentUrl = `intent://invite?${urlParams.toString()}#Intent;scheme=kittydiary;package=com.kittydiary.app;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.kittydiary.app;end`;
+                    window.location.href = intentUrl;
+                    
+                    // Show success message for Chrome (intent syntax handles fallback automatically)
+                    setTimeout(() => {
+                        document.getElementById('app-not-installed').style.display = 'none';
+                        document.getElementById('app-installed').style.display = 'block';
+                    }, 1500);
+                    return;
+                }
+                
+                // Standard handling for iOS and other browsers
                 window.location.href = appUrl;
                 
-                // If the app opens, hide the download section after a delay
+                // Show success message after delay
                 setTimeout(() => {
                     document.getElementById('app-not-installed').style.display = 'none';
                     document.getElementById('app-installed').style.display = 'block';
