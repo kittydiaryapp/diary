@@ -314,12 +314,13 @@
             };
             
             try {
-                localStorage.setItem('kittyDiaryPendingInvite', JSON.stringify(inviteData));
+                localStorage.setItem('@KittyDiary:webPendingInvite', JSON.stringify(inviteData));
                 console.log('Stored pending invite data:', inviteData);
             } catch (error) {
                 console.error('Failed to store invite data:', error);
             }
         }
+
         
         // Show main options
         function showMainOptions() {
