@@ -120,26 +120,6 @@
             transform: translateY(-2px);
         }
 
-        .app-status {
-            background: #219150;
-            color: white;
-            padding: 1rem;
-            border-radius: 12px;
-            margin: 1.5rem 0;
-            font-weight: 600;
-            font-size: 16px;
-            box-shadow: 0 4px 12px rgba(33, 145, 80, 0.3);
-        }
-
-        .app-status.opening {
-            background: #3498db;
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-        }
-
-        .app-status.error {
-            background: #e74c3c;
-            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
-        }
 
         .footer {
             margin-top: 15px;
@@ -248,35 +228,6 @@
             </div>
         </div>
 
-        <div id="app-opening" style="display: none;">
-            <div class="app-status" style="margin-bottom: 15px;">
-                ✅ Opening KittyDiary... If the app doesn't open, tap the download button below.
-            </div>
-            <button onclick="downloadApp()"
-                style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; cursor: pointer;">
-                Download App Instead
-            </button>
-        </div>
-
-        <div id="download-options" style="display: none;">
-            <p style="color: #2c3e50; font-size: 18px; font-weight: 600; margin-bottom: 15px;">Download KittyDiary:</p>
-            <div class="download-badges">
-                <a href="#" id="ios-link" target="_blank" rel="noopener">
-                    <img class="app-store-badge"
-                        src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
-                        alt="Download on the App Store">
-                </a>
-                <a href="#" id="android-link" target="_blank" rel="noopener">
-                    <img class="play-store-badge"
-                        src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
-                        alt="Get it on Google Play">
-                </a>
-            </div>
-            <button onclick="showMainOptions()"
-                style="background: #95a5a6; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; margin-top: 15px; cursor: pointer;">
-                ← Back to Options
-            </button>
-        </div>
 
         <div class="footer">
             Powered by Seawall Software
@@ -294,36 +245,16 @@
         document.getElementById('groupName').textContent = decodeURIComponent(groupName);
         document.getElementById('inviterInfo').textContent = `Invited by ${decodeURIComponent(inviterName)}`;
 
-        // Set up download links
-        const androidLink = document.getElementById('android-link');
-        const iosLink = document.getElementById('ios-link');
-
-        // Actual app store URLs
-        androidLink.href = 'https://play.google.com/store/apps/details?id=com.kittydiary.app';
-        iosLink.href = 'https://apps.apple.com/ca/app/kitty-diary/id6747345472';
-
         // Enhanced platform detection for better deep link handling
         const isAndroid = /Android/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const isChromeAndroid = isAndroid && /Chrome/.test(navigator.userAgent);
         const isSamsungBrowser = /SamsungBrowser/.test(navigator.userAgent);
 
-        if (isAndroid) {
-            iosLink.parentElement.style.display = 'none';
-        } else if (isIOS) {
-            androidLink.parentElement.style.display = 'none';
-        }
-
         // Note: localStorage approach removed as it doesn't work across browser/app boundary
         // Users will need to click the invite link again after installing the app
 
 
-        // Show main options
-        function showMainOptions() {
-            document.getElementById('main-options').style.display = 'block';
-            document.getElementById('app-opening').style.display = 'none';
-            document.getElementById('download-options').style.display = 'none';
-        }
 
         // Handle download app option - redirect directly to appropriate store
         function downloadApp() {
@@ -333,10 +264,8 @@
             } else if (isAndroid) {
                 window.location.href = 'https://play.google.com/store/apps/details?id=com.kittydiary.app';
             } else {
-                // Default to iOS store for other platforms, but also show options
-                document.getElementById('main-options').style.display = 'none';
-                document.getElementById('app-opening').style.display = 'none';
-                document.getElementById('download-options').style.display = 'block';
+                // Default to iOS store for other platforms
+                window.location.href = 'https://apps.apple.com/ca/app/kitty-diary/id6747345472';
             }
         }
 
@@ -346,11 +275,6 @@
                 alert('Invalid invite link');
                 return;
             }
-
-            // Show opening state
-            document.getElementById('main-options').style.display = 'none';
-            document.getElementById('download-options').style.display = 'none';
-            document.getElementById('app-opening').style.display = 'block';
 
             const appUrl = `kittydiary://invite?${urlParams.toString()}`;
 
