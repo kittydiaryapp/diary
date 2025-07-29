@@ -219,6 +219,15 @@
             Join your private social circle to share moments, organize events, and stay connected with your closest friends and family.
         </div>
         
+        <!-- SUPER CLEAR WARNING -->
+        <div style="background: #ff6b6b; color: white; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center; border: 3px solid #e55656;">
+            <h2 style="margin: 0 0 15px 0; font-size: 24px; font-weight: bold;">⚠️ IMPORTANT ⚠️</h2>
+            <div style="margin: 0; font-size: 18px; font-weight: bold; line-height: 1.4;">
+                <p style="margin: 0 0 10px 0;">1. Install app → Sign up with Google/Apple</p>
+                <p style="margin: 0;">2. CLICK THIS LINK AGAIN to join the group!</p>
+            </div>
+        </div>
+        
         <div id="main-options">
             <div style="margin-bottom: 30px;">
                 <p style="color: #2c3e50; font-size: 18px; font-weight: 600; margin-bottom: 15px;">Choose an option:</p>
@@ -299,27 +308,8 @@
             androidLink.parentElement.style.display = 'none';
         }
         
-        // Store invite data in localStorage for later retrieval by the app
-        function storeInviteData() {
-            const inviteData = {
-                groupId: groupId,
-                invitedBy: urlParams.get('invitedBy'),
-                inviterName: urlParams.get('inviterName'),
-                groupName: urlParams.get('groupName'),
-                role: urlParams.get('role') || 'member',
-                type: urlParams.get('type'),
-                expiresAt: urlParams.get('expiresAt'),
-                timestamp: Date.now(),
-                originalUrl: window.location.href
-            };
-            
-            try {
-                localStorage.setItem('@KittyDiary:webPendingInvite', JSON.stringify(inviteData));
-                console.log('Stored pending invite data:', inviteData);
-            } catch (error) {
-                console.error('Failed to store invite data:', error);
-            }
-        }
+        // Note: localStorage approach removed as it doesn't work across browser/app boundary
+        // Users will need to click the invite link again after installing the app
 
         
         // Show main options
@@ -331,9 +321,6 @@
         
         // Handle download app option - redirect directly to appropriate store
         function downloadApp() {
-            // Store invite data before redirecting to app store
-            storeInviteData();
-            
             // Redirect directly to the appropriate app store
             if (isIOS) {
                 window.location.href = 'https://apps.apple.com/ca/app/kitty-diary/id6747345472';
@@ -380,10 +367,7 @@
         }
         
         // Don't auto-attempt deep link - let user choose
-        // Just store the invite data in case they download later
-        if (groupId) {
-            storeInviteData();
-        }
+        // Invite data is preserved in the URL for when they click again after installing
     </script>
 </body>
 </html>
