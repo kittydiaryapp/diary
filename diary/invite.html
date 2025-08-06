@@ -278,15 +278,8 @@
 
             const appUrl = `kittydiary://invite?${urlParams.toString()}`;
 
-            // Handle Samsung Browser (known issues with deep links)
-            if (isSamsungBrowser) {
-                console.log('Samsung Browser detected, redirecting to Play Store');
-                downloadApp();
-                return;
-            }
-
-            // Android Chrome-specific handling with intent syntax
-            if (isChromeAndroid) {
+            // Android Chrome and Samsung Browser - use intent syntax with fallback
+            if (isChromeAndroid || isSamsungBrowser) {
                 const intentUrl = `intent://invite?${urlParams.toString()}#Intent;scheme=kittydiary;package=com.kittydiary.app;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.kittydiary.app;end`;
                 window.location.href = intentUrl;
                 return;
