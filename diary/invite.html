@@ -235,15 +235,22 @@
     </div>
 
     <script>
-        // Parse URL parameters
+        // Parse URL parameters (support new token-only links and legacy verbose links)
         const urlParams = new URLSearchParams(window.location.search);
-        const groupName = urlParams.get('groupName') || 'a group';
-        const inviterName = urlParams.get('inviterName') || 'Someone';
-        const groupId = urlParams.get('groupId');
+        const token = urlParams.get('token');
+        const expiresAtParam = urlParams.get('expiresAt');
+        const legacyGroupName = urlParams.get('groupName') || 'a group';
+        const legacyInviterName = urlParams.get('inviterName') || 'Someone';
+        const legacyGroupId = urlParams.get('groupId');
 
-        // Update page content
-        document.getElementById('groupName').textContent = decodeURIComponent(groupName);
-        document.getElementById('inviterInfo').textContent = `Invited by ${decodeURIComponent(inviterName)}`;
+        // Update page content (do not expose group details for token-only links)
+        if (token) {
+            document.getElementById('groupName').textContent = 'Open in app to view this private invite';
+            document.getElementById('inviterInfo').textContent = 'For privacy, details are shown in the app.';
+        } else {
+            document.getElementById('groupName').textContent = decodeURIComponent(legacyGroupName);
+            document.getElementById('inviterInfo').textContent = `Invited by ${decodeURIComponent(legacyInviterName)}`;
+        }
 
         // Enhanced platform detection for better deep link handling
         const isAndroid = /Android/i.test(navigator.userAgent);
@@ -271,16 +278,27 @@
 
         // Updated tryOpenApp function - only called when user explicitly chooses to open app
         function tryOpenApp() {
-            if (!groupId) {
+            if (!(token || legacyGroupId)) {
                 alert('Invalid invite link');
                 return;
             }
 
-            const appUrl = `kittydiary://invite?${urlParams.toString()}`;
+            // Build query string: prefer token-only to avoid exposing details
+            let qs = '';
+            if (token) {
+                const p = new URLSearchParams();
+                p.set('token', token);
+                if (expiresAtParam) p.set('expiresAt', expiresAtParam);
+                qs = p.toString();
+            } else {
+                qs = urlParams.toString();
+            }
+
+            const appUrl = `kittydiary://invite?${qs}`;
 
             // Android Chrome and Samsung Browser - use intent syntax with fallback
             if (isChromeAndroid || isSamsungBrowser) {
-                const intentUrl = `intent://invite?${urlParams.toString()}#Intent;scheme=kittydiary;package=com.kittydiary.app;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.kittydiary.app;end`;
+                const intentUrl = `intent://invite?${qs}#Intent;scheme=kittydiary;package=com.kittydiary.app;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.kittydiary.app;end`;
                 window.location.href = intentUrl;
                 return;
             }
